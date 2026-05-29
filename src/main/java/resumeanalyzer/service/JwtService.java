@@ -1,7 +1,7 @@
 package resumeanalyzer.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -24,5 +24,41 @@ public class JwtService {
                         )
                 )
                 .compact();
+    }
+
+    public String extractEmail(String token) {
+
+        Claims claims = Jwts.parser()
+                .verifyWith(
+                        io.jsonwebtoken.security.Keys.hmacShaKeyFor(
+                                SECRET_KEY.getBytes()
+                        )
+                )
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+
+        try {
+
+            Jwts.parser()
+                    .verifyWith(
+                            io.jsonwebtoken.security.Keys.hmacShaKeyFor(
+                                    SECRET_KEY.getBytes()
+                            )
+                    )
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
     }
 }
